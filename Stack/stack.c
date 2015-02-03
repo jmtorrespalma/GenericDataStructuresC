@@ -4,6 +4,10 @@
 
 #define DEFAULT_STACK_ELM 5
 
+
+#define stack_calc_address(stack, indx) 		\
+	stack->data + (stack->el_size * indx)
+
 static unsigned char stack_resize(stack_t *my_s, unsigned int new_size);
 
 /* ************************************************** */
@@ -36,8 +40,7 @@ void stack_push(stack_t *const my_stack, void *item){
 		stack_resize(my_stack, (my_stack->max_size)*2);
 	}
 
-	void *cpy_start = my_stack->data + 
-			(my_stack->el_size * my_stack->size);
+	void *cpy_start = stack_calc_address(my_stack, my_stack->size);
 
 	
 	memcpy(cpy_start, item, my_stack->el_size);
@@ -56,8 +59,7 @@ unsigned int stack_pop(stack_t *const my_stack, void *item){
 	/* The position where the last item is, is given by
  	   data_start + (size_of_element * (number_of_elm_in_stack - 1)) */
 
-	void *elem_pos = my_stack->data + 
-			(my_stack->el_size * (my_stack->size - 1));
+	void *elem_pos = stack_calc_address(my_stack, my_stack->size - 1);
 
 	memcpy(item, elem_pos, my_stack->el_size);
 	return --(my_stack->size);
@@ -75,8 +77,7 @@ unsigned int stack_top(stack_t *const my_s, void *item){
 	/* The position where the last item is, is given by
  	   data_start + (size_of_element * (number_of_elm_in_stack - 1)) */
 
-	void *elem_pos = my_s->data + 
-			(my_s->el_size * (my_s->size - 1));
+	void *elem_pos = stack_calc_address(my_s, my_s->size - 1);
 
 	memcpy(item, elem_pos, my_s->el_size);
 	return my_s->size;
