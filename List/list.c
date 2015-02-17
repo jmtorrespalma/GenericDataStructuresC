@@ -209,7 +209,8 @@ uint32_t list_front(list_t *const my_l, void *item)
 
 /* ************************************************** */
 
-uint32_t list_back(list_t *const my_l, void *item){
+uint32_t list_back(list_t *const my_l, void *item)
+{
 
 	list_node_t *tail = list_get_sent(my_l)->prev;
 
@@ -224,11 +225,91 @@ uint32_t list_back(list_t *const my_l, void *item){
 
 /* ************************************************** */
 
+list_iterator_t list_begin(list_t *const my_l)
+{
+	return (list_get_sent(my_l)->next);
+}
 
 /* ************************************************** */
 
+list_iterator_t list_end(list_t *const my_l)
+{
+	return (list_get_sent(my_l)->prev);
+}
+
+
+/* ************************************************** */
+/**
+ * Compares data in nodes with s_itm. To compare uses memcmp. However,
+ * there's a possibility to use a function pointer to let the user
+ * set the way 2 elements are compared. That last is not implemented.
+ */
+list_iterator_t list_search(list_t *const my_list, void *const s_itm)
+{
+	/* Start searching from the first node */
+	list_node_t *s_ptr = list_get_sent(my_list)->next;
+	uint8_t found = 0;
+	
+	/* While not completed the search and not found, loop */
+	while (s_ptr != my_list->sent && !found){
+		/* memcmp returns 0 if equal!! */
+		found = !memcmp(s_ptr->data, s_itm, my_list->el_size);
+		s_ptr = s_ptr->next;
+	}
+
+	if (found){
+		return s_ptr->prev; /* We advanced at the end of iteration */
+	} else {
+		return NULL;
+	}
+
+}
+
+/* ************************************************** */
+/**
+ * Inserts a new node in the position given by indx. Is inserted just
+ * before the node pointed by indx, so the new node next will point
+ * to indx.
+ */
+void list_insert(list_t *const my_list, 
+		const list_iterator_t indx,	void *const item)
+{
+	list_node_t *curr_node = (list_node_t *) indx;
+	/* Create node in the desired position */
+	list_node_create(curr_node->prev, indx, my_list->el_size, item);
+	++my_list->size;
+	
+}
+
+/* ************************************************** */
+/**
+ * Inserts a new node in the position given by indx. Is inserted just
+ * before the node pointed by indx, so the new node next will point
+ * to indx.
+ */
+void list_delete(list_t *const my_list, const list_iterator_t indx)
+{
+	if (indx == my_list->sent || list_empty(my_list)){
+		return; /* We cant let the program delete the sentinel */
+	}
+
+	/* Destroy node */
+	list_node_destroy(indx);
+	--my_list->size;
+	
+}
+
 
 /* ************************************************** */
 
+list_iterator_t list_iterator_advance(list_iterator_t *const my_it)
+{
+	return ((list_node_t *) my_it)->next;
+}
 
+/* ************************************************** */
 
+list_iterator_t list_iterator_rewind(list_iterator_t *const my_it)
+{
+	return ((list_node_t *) my_it)->prev;
+}

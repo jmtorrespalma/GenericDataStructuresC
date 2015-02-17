@@ -134,6 +134,20 @@ list_iterator_t list_begin(list_t *const my_l);
 list_iterator_t list_end(list_t *const my_l);
 
 /*
+ * @brief Moves iterator to next node.
+ * @param [in] my_it Iterator pointing to a node.
+ * @return Iterator to next element of the list.
+ */
+list_iterator_t list_iterator_advance(list_iterator_t *const my_it);
+
+/*
+ * @brief Moves iterator to the previous node.
+ * @param [in] my_it Iterator pointing to a node.
+ * @return Iterator to the previous element of the list.
+ */
+list_iterator_t list_iterator_rewind(list_iterator_t *const my_it);
+
+/*
  * @brief Finds an item in the list, and returns a pointer to the value.
  * @param [in] my_list Pointer to the list to search in.
  * @param [in] s_itm Pointer to the searched item.
