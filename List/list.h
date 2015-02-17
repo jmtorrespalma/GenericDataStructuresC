@@ -9,19 +9,21 @@
 #define LIST_H_
 
 #include <stdlib.h> // For size_t
+#include <stdint.h> // For int types
 
 /*
  * @brief A generic double linked list struct using nodes as containers.
- * Internally uses a double linked list scheme.
+ * Internally uses a double linked list scheme with a sentinel. The reason
+ * is simplicity of code and avoidance of many checks, that generates code
+ * with less branches.
  * @var head Pointer to the head node of the list.
  * @var el_size Size of each element in the list. Should be constant.
  * @var size Current size of the list.
  */
 typedef struct list{
-	void *head;			/* Pointer to first node */	
-	void *tail;			/* Pointer to last node */	
+	void *sent;			/* Pointer to sentinel */	
 	size_t el_size;		/* Element size. Should be constant */
-	unsigned int size;	/* Number of elements in the list */	
+	uint32_t size;		/* Number of elements in the list */	
 } list_t; 
 
 /*
@@ -60,7 +62,7 @@ void list_push_back(list_t *const my_list, void *item);
  * Could be NULL.
  * @return Number of elements remaining in the list.
  */
-unsigned int list_pop_back(list_t *const my_list, void *item);
+uint32_t list_pop_back(list_t *const my_list, void *item);
 
 /*
  * @brief Attaches a new element to the head of the list.
@@ -75,23 +77,23 @@ void list_push_front(list_t *const my_list, void *item);
  * @param [out] item Pointer to the item where will store the value.
  * @return Number of elements remaining in my_list.
  */
-unsigned int list_pop_front(list_t *const my_list, void *item);
+uint32_t list_pop_front(list_t *const my_list, void *item);
 
 /*
  * @brief Gets the first element in the list.
  * @param [in] my_list Pointer to the list to be checked.
  * @param [out] item Pointer to the item where will store the value.
- * @return Number of elements remaining in my_list.
+ * @return Number of elements in my_list.
  */
-unsigned int list_front(list_t *const my_list, void *item);
+uint32_t list_front(list_t *const my_list, void *item);
 
 /*
  * @brief Gets the last element in the list.
  * @param [in] my_list Pointer to the list to be checked.
  * @param [out] item Pointer to the item where will store the value.
- * @return Number of elements remaining in my_list.
+ * @return Number of elements in my_list.
  */
-unsigned int list_back(list_t *const my_list, void *item);
+uint32_t list_back(list_t *const my_list, void *item);
 
 /*
  * @brief Checks if the list is empty.
@@ -100,7 +102,7 @@ unsigned int list_back(list_t *const my_list, void *item);
  * @retval 1 Empty list.
  * @retval 0 Not empty list.
  */
-static inline unsigned char list_empty(list_t *const my_l)
+static inline uint8_t list_empty(list_t *const my_l)
 {
 	return (my_l->size == 0);
 }
@@ -116,28 +118,39 @@ static inline unsigned int list_size(list_t *const my_list)
 }
 
 /*
+ * @brief Returns an iterator to the first element of the list.
+ * NULL if empty.
+ * @param [in] my_list Pointer to the list.
+ * @return Iterator to first element of the list.
+ */
+list_iterator_t list_begin(list_t *const my_l);
+
+/*
+ * @brief Returns an iterator to the last element of the list.
+ * NULL if empty.
+ * @param [in] my_list Pointer to the list.
+ * @return Iterator to last element of the list.
+ */
+list_iterator_t list_end(list_t *const my_l);
+
+/*
  * @brief Finds an item in the list, and returns a pointer to the value.
  * @param [in] my_list Pointer to the list to search in.
  * @param [in] s_itm Pointer to the searched item.
- * @param [out] f_itm Pointer to iterator. Will receive the searched value.
- * @return Integer showing success or not.
- * @retval 1 Found item.
- * @retval 0 Not found item.
+ * @return Iterator to found item.
+ * @retval Other Found item.
+ * @retval NULL Not found item.
  */
-unsigned char list_search(list_t *const my_list, void *const s_itm, 
-							list_iterator_t *const f_itm);
+list_iterator_t list_search(list_t *const my_list, void *const s_itm);
 
 /*
  * @brief Insert an item in the list, in the position given.
  * @param [in] my_list Pointer to the list to insert in.
  * @param [in] indx Iterator pointing to where the item will be stored.
- * @param [out] f_itm Pointer to the item to insert.
- * @return Integer showing success or not.
- * @retval 1 Found item.
- * @retval 0 Not found item.
+ * @param [in] f_itm Pointer to the item to insert.
  */
-unsigned char list_insert(list_t *const my_list, const list_iterator_t indx,
-							void *const item);
+void list_insert(list_t *const my_list, 
+		const list_iterator_t indx,	void *const item);
 
 /*
  * @brief Removes an item from the list. The first coincidence.
